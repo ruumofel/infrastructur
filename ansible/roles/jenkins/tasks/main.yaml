@@ -1,0 +1,61 @@
+---
+- name: Add Jenkins key
+  apt_key:
+    url: "https://pkg.jenkins.io/debian-stable/jenkins.io.key"
+    state: present
+
+- name: Add Jenkins repository
+  apt_repository:
+    repo: 'deb https://pkg.jenkins.io/debian-stable binary/'
+    state: present
+
+- name: Update repository
+  apt: update_cache=true
+  become: yes
+
+- name: Install Java
+  apt: name={{ java_ver }} state=present update_cache=true
+
+- name: Install Jenkins
+  apt: name={{ jenkins_ver }} state=present update_cache=true
+
+- name: Install docker required system packages
+  apt: name="{{ item }}" state=present update_cache=yes
+  with_items: "{{ docker_req }}"
+  # loop: [ 'ca-certificates', 'curl', 'gnupg', 'lsb-release']
+
+- name: Add Docker GPG apt Key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker Repository
+  apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu focal stable
+    state: present
+
+- name: Update apt and install docker-ce
+  apt: name="{{ item }}" state=present update_cache=yes
+  with_items: "{{ dockers }}"
+  # loop: [ 'docker-ce', 'docker-ce-cli', 'containerd.io']
+
+- name: add user to docker group
+  user:
+    name: "{{ jenkins_ver }}"
+    groups: docker
+    append: yes
+
+- name: Add kubectl GPG apt Key
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: Add Kubernetes Repository
+  apt_repository:
+    repo: deb http://apt.kubernetes.io/ kubernetes-xenial main 
+    state: present
+    filename: kubernetes
+    mode: 0600
+
+- name: Install Jenkins
+  apt: name={{ kubectl_ver }} state=present update_cache=true

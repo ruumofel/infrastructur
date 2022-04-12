@@ -1,0 +1,44 @@
+---
+- name: Update repository
+  apt: update_cache=true
+  become: yes
+
+- name: Install Nginx
+  apt: name={{ nginx_ver }} state=present update_cache=true
+
+- name: Delete default config
+  file:
+    state: absent
+    path: /etc/nginx/sites-enabled/default
+
+- name: Install certbot
+  apt: name={{ certbot_ver }} state=present update_cache=true
+
+- name: Install python3-certbot-nginx
+  apt: name={{ python_cerbot }} state=present update_cache=true
+
+- name: Generate certs
+  shell: certbot certonly --nginx -d jenkins.sumateracommodity.com -m nofeliruum@yahoo.com --non-interactive --agree-tos
+  become: yes
+
+- name: Create dir /etc/nginx/ssl/
+  file:
+    path: /etc/nginx/ssl/
+    state: directory
+
+- name: Generate dhparam 2048
+  openssl_dhparam:
+    path: /etc/nginx/ssl/dhparam.pem
+    size: 2048
+
+- name: Stop Nginx
+  service: name=nginx state=stopped
+
+- name: Copy ssl configuration 
+  template: src=jenkins.sumateracommodity.com dest=/etc/nginx/sites-enabled/jenkins.sumateracommodity.com
+
+- name: Apply Nginx
+  shell: nginx -t
+
+- name: Restart Nginx
+  service: name=nginx state=restarted

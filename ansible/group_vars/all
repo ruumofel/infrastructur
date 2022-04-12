@@ -1,0 +1,20 @@
+---
+nginx_ver: "nginx"
+python_cerbot: "python3-certbot-nginx"
+certbot_ver: "certbot"
+vpsuser: "ubuntu"
+domain: "jenkins.sumateracommodity.com"
+email: "nofeliruum@yahoo.com"
+java_ver: "openjdk-8-jdk"
+jenkins_ver: "jenkins"
+kubectl_ver: "kubectl"
+docker_req:
+    - ca-certificates
+    - curl
+    - gnupg
+    - lsb-release
+    - apt-transport-https
+dockers:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
